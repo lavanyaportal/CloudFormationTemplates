@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description : Basic Ec2 Instance
+
+Resources:
+ DevEC2Instance:
+  Type: AWS::EC2::Instance
+  Properties:
+   ImageId: ami-0998bf58313ab53da
+   InstanceType: t2.micro
+   KeyName: cfn-key-1
+   SecurityGroups:
+    - default
+    - !Ref SSHSecurityGroup 
+
+ SSHSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+   GroupDescription: my new SSh SG
+   SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+
+
+
+

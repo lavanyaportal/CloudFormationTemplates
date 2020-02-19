@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Basic EC2 Instance
+
+Mappings:
+ RegionMap:
+    us-east-2: 
+      HVM64: "ami-0e38b48473ea57778"
+      HVMG2: "ami-0998bf58313ab53da"
+    us-west-1: 
+      HVM64: "ami-01c94064639c71719"
+      HVMG2: "ami-021bb9f371690f97a"
+ MyEnvironmentalMap:
+    Dev:
+     instanceType: t2.small
+    Prod:
+     instanceType: t2.micro  
+Parameters:
+ MyKeyName:
+   Description: Select the keyName from List
+   Type: AWS::EC2::KeyPair::KeyName
+ EnvironmentName:
+   Description: Select the Environment from the list
+   Type: String
+   Default: Dev
+   AllowedValues:
+    - Dev
+    - Prod
+      
+Resources:
+  DevEC2Insatnce:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap
+        - RegionMap
+        - !Ref AWS::Region
+        - HVM64
+      InstanceType: !FindInMap
+        - MyEnvironmentalMap
+        - !Ref EnvironmentName
+        - instanceType
+      KeyName: !Ref MyKeyName  
+      SecurityGroups:
+        - default
+        - !Ref SSHSecurityGroup
+
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: my new ssh sg
+      SecurityGroupIngress:
+       -  IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+       -  IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0  
+  MyElastciIp:
+     Type: AWS::EC2::EIP
+     Properties:
+      InstanceId: !Ref DevEC2Insatnce         
+
+     
